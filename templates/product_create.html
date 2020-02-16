@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block scripts %}
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setDate(){
+            let d = new Date('{{ product.batch_date }}');
+            $('#batch_date').val(d.getFullYear()+'-'+parseInt(d.getMonth() +1)+'-'+d.getDate())
+        }
+
+        function update(id) {
+            let data = {
+                'name': $('#name').val(),
+                'vendor': $('#vendor').val(),
+                'mrp': $('#mrp').val(),
+                'batch_no': $('#batch_no').val(),
+                'batch_date': $('#batch_date').val(),
+                'quantity': $('#quantity').val()
+            };
+            $.ajax({
+                headers: {"X-CSRFToken": getCookie('csrftoken')},
+                url: '/api/product/'+id+'/',
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (data) {
+                    window.location.href = '/products';
+                }
+            });
+        }
+        console.log(getCookie('csrftoken'))
+    </script>
+{% endblock %}
+{% block content %}
+    {% if form %}
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <input type="submit" value="Create" class="w-100 text-white text-center my-2 btn btn-dark">
+        </form>
+     {% elif product %}
+        <div>
+            {% csrf_token %}
+            <label>
+                Name:
+                <input type="text" id="name" value="{{ product.name }}">
+            </label>
+            <label>
+                Vendor:
+                <input type="text" id="vendor" value="{{ product.vendor }}">
+            </label>
+            <label>
+                MRP:
+                <input type="number" id="mrp" value="{{ product.mrp }}">
+            </label>
+        <label>
+                Batch No:
+                <input type="number" id="batch_no" value="{{ product.batch_no }}">
+            </label>
+        <label>
+                Batch Date:
+                <input type="text" id="batch_date" value="">
+            </label>
+        <label>
+                Quantity:
+                <input type="number" id="quantity" value="{{ product.quantity }}">
+            </label>
+        <button onclick="update('{{ product.id }}')">Update</button>
+        </div>
+
+        <script>setDate()</script>
+    {% endif %}
+{% endblock %}

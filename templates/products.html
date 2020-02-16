@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block scripts %}
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function deleteProduct(id) {
+            $.ajax({
+                headers: {"X-CSRFToken": getCookie('csrftoken')},
+                url: '/api/product/' + id + '/',
+                type: 'DELETE',
+                success: function (data) {
+                    window.location.href = '/products';
+                }
+            })
+        }
+        function approveProduct(id) {
+            $.ajax({
+                headers: {"X-CSRFToken": getCookie('csrftoken')},
+                url: '/api/approve/' + id,
+                type: 'PUT',
+                success: function (data) {
+                    window.location.href = '/products';
+                }
+            })
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <button onclick="window.location.href = '/create_product';">Create Product</button>
+    {% if request.user.role == 2 and request.path == '/products' %}
+        <button onclick="window.location.href = '/approve_products';">Approve Products</button>
+    {% endif %}
+    {% if request.path == '/products' %}
+        <table border="2">
+        <th>
+            <td>Name</td>
+            <td>Vendor</td>
+            <td>MRP</td>
+            <td>Batch No</td>
+            <td>Batch Date</td>
+            <td>Quantity</td>
+        </th>
+        {% for product in approved_products %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.vendor }}</td>
+            <td>{{ product.mrp }}</td>
+            <td>{{ product.batch_no }}</td>
+            <td>{{ product.batch_date }}</td>
+            <td>{{ product.quantity }}</td>
+            <td><button onclick="window.location.href = '/update_product/{{ product.id }}';">Update</button></td>
+            <td><button onclick="deleteProduct('{{ product.id }}')">Delete</button></td>
+        </tr>
+        {% endfor %}
+    </table>
+        {% elif request.path == '/approve_products' %}
+        <table border="2">
+                <th>
+                    <td>Name</td>
+                    <td>Vendor</td>
+                    <td>MRP</td>
+                    <td>Batch No</td>
+                    <td>Batch Date</td>
+                    <td>Quantity</td>
+                    <td>Operation</td>
+                </th>
+        {% for product in products %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.vendor }}</td>
+                <td>{{ product.mrp }}</td>
+                <td>{{ product.batch_no }}</td>
+                <td>{{ product.batch_date }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>
+                    {% if product.operation == 1 %}
+                        Create
+                        {% elif product.operation == 2 %}
+                        Update
+                        {% elif product.operation == 3 %}
+                        Delete
+                    {% endif %}
+                </td>
+                <td><button onclick="approveProduct('{{ product.id }}')">Approve</button></td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+{% endblock %}
