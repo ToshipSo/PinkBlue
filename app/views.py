@@ -5,7 +5,7 @@ from .forms import CreateUserForm, ProductCreateForm
 from .models import Product, ProductApproval
 from .serializers import ProductSerializer, ProductApprovalSerializer
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import UpdateAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -55,7 +55,7 @@ class ProductUpdateView(LoginRequiredMixin, View):
         return render(request, 'product_create.html', context)
 
 
-class ProductApprove(UpdateAPIView):
+class ProductApprove(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProductApprovalSerializer
 
@@ -65,6 +65,17 @@ class ProductApprove(UpdateAPIView):
             ProductApproval.objects.filter(pk=kwargs['pk']).first().save()
             return Response({
                 'status': 'Approved'
+            })
+        else:
+            return Response({
+                'status': 'Not Authorized'
+            })
+
+    def delete(self, request, *args, **kwargs):
+        if request.user.role == 2:
+            ProductApproval.objects.filter(pk=kwargs['pk']).delete()
+            return Response({
+                'status': 'Discarded'
             })
         else:
             return Response({

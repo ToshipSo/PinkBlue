@@ -26,6 +26,16 @@
                 }
             })
         }
+        function deleteApproval(id) {
+            $.ajax({
+                headers: {"X-CSRFToken": getCookie('csrftoken')},
+                url: '/api/approve/' + id,
+                type: 'DELETE',
+                success: function (data) {
+                    window.location.href = '/products';
+                }
+            })
+        }
         function approveProduct(id) {
             $.ajax({
                 headers: {"X-CSRFToken": getCookie('csrftoken')},
@@ -98,6 +108,7 @@
                     {% endif %}
                 </td>
                 <td><button onclick="approveProduct('{{ product.id }}')">Approve</button></td>
+                <td><button onclick="deleteApproval('{{ product.id }}')">Delete</button></td>
             </tr>
         {% endfor %}
         </table>
