@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, ListView, View
 from .forms import CreateUserForm, ProductCreateForm
 from .models import Product, ProductApproval
@@ -9,13 +10,18 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 
+class RedirectView(View):
+    def get(self, request):
+        return redirect('products')
+
+
 class SignUpView(CreateView):
     form_class = CreateUserForm
     template_name = 'registration/signup.html'
     success_url = '/products'
 
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, ListView):
     queryset = Product.objects.all()
     template_name = 'products.html'
     context_object_name = 'approved_products'
@@ -28,19 +34,19 @@ class PassRequestToFormViewMixin:
         return kwargs
 
 
-class ProductCreateView(PassRequestToFormViewMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, PassRequestToFormViewMixin, CreateView):
     form_class = ProductCreateForm
     template_name = 'product_create.html'
     success_url = '/products'
 
 
-class ApproveView(ListView):
+class ApproveView(LoginRequiredMixin, ListView):
     queryset = ProductApproval.objects.all()
     template_name = 'products.html'
     context_object_name = 'products'
 
 
-class ProductUpdateView(View):
+class ProductUpdateView(LoginRequiredMixin, View):
 
     def get(self, request, pk, *args, **kwargs):
         context = {

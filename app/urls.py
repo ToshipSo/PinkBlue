@@ -1,7 +1,9 @@
 from django.urls import path
-from app.views import SignUpView, ProductListView, ProductCreateView, ProductApprove, ProductUpdateView, ApproveView
+from app.views import SignUpView, ProductListView, ProductCreateView, ProductApprove, ProductUpdateView, ApproveView, \
+    RedirectView
 
 urlpatterns = [
+    path('', RedirectView.as_view()),
     path('signup', SignUpView.as_view(), name='signup'),
     path('products', ProductListView.as_view(), name='products'),
     path('create_product', ProductCreateView.as_view(), name='create_product'),

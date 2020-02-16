@@ -47,6 +47,7 @@
     </script>
 {% endblock %}
 {% block content %}
+    <button onclick="window.location.href = '/logout'">Logout</button>
     {% if form %}
         <form action="" method="post">
             {% csrf_token %}

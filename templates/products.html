@@ -43,6 +43,7 @@
     {% if request.user.role == 2 and request.path == '/products' %}
         <button onclick="window.location.href = '/approve_products';">Approve Products</button>
     {% endif %}
+    <button onclick="window.location.href = '/logout'">Logout</button>
     {% if request.path == '/products' %}
         <table border="2">
         <th>
